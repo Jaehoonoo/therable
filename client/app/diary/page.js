@@ -2,9 +2,9 @@
 "use client"; // Needed for Client Components in Next.js App Router
 
 import React, { useState } from 'react';
-import Card from '../components/ui/Progress';
-import Button from '../components/ui/button';
-import Progress from '../components/ui/card';
+import Card from '../components/ui/Card';
+import Button from '../components/ui/Button';
+import Progress from '../components/ui/Progress';
 import { Brain, Search, Plus, Trash, Sparkles } from 'lucide-react';
 
 
