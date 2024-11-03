@@ -85,7 +85,8 @@ def getallEntries():
             for row in rows:
                 results.append({
                     "date_created":row[0],
-                    "entry":row[1]
+                    "entry":row[1],
+                    "vectors":row[2]
                 })
             return jsonify(results)
         else:
