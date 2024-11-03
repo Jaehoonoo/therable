@@ -1,5 +1,6 @@
-from flask import Flask, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
+import os
 
 import iris
 import json
@@ -17,22 +18,32 @@ CORS(app)
 
 @app.route('/therable/entry', methods=['POST'])
 def saveEntry():
-    return jsonify({'message': ''})
-
-@app.route('/therable/entry', methods=['GET'])
-def getallEntries():
-    tableName = request.json.get('tableName')
+    date = request.json.get('date')
+    entry = request.json.get('entry')
+    query = f"INSERT INTO therableentries (datecreated, entry) VALUES (?,?)"
     conn = iris.connect(connection_string, username, password)
     cursor = conn.cursor()
     try:
-        cursor.execute(f"Select * From {tableName}")
+        cursor.execute(query,[date,entry])
+    except Exception as inst:
+        return jsonify({"response": str(inst)}) 
+    cursor.close()
+    conn.commit()
+    conn.close()
+    return jsonify({"response": "new information added"})
+
+@app.route('/therable/entry', methods=['GET'])
+def getallEntries():
+    conn = iris.connect(connection_string, username, password)
+    cursor = conn.cursor()
+    try:
+        cursor.execute(f"Select * From therableentries")
         data = cursor.fetchall()
     except Exception as inst:
         return jsonify({"response": str(inst)})
     cursor.close()
     conn.commit()
     conn.close()
-    print(data)
     return jsonify({"response": data})
 
 @app.route('/therable/entry', methods=['PUT'])
