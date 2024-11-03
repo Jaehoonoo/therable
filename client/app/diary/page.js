@@ -6,6 +6,7 @@ import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Progress from '../components/ui/Progress';
 import { Brain, Search, Plus, Trash, Sparkles } from 'lucide-react';
+import { useAuth } from "@clerk/nextjs";
 
 
 const MedicalDiary = () => {
@@ -17,6 +18,56 @@ const MedicalDiary = () => {
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [showRecommendations, setShowRecommendations] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState(null);
+
+  const [exercises, setExercises] = useState([]);
+  const [possibleConditions, setPossibleConditions] = useState([]);
+  const [suggestedArticles, setSuggestedArticles] = useState([]);
+
+  const { userId } = useAuth();
+
+  const newEntry = async (userId) => {
+    await fetch('http://localhost:8080/api/new_entry', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userId: userId, date: new Date().toLocaleString(), entry: currentEntry }),
+    })
+    .then(response => response.text())
+    .then(() => {
+      // Call searchEntries to refresh the entries after adding a new one
+      searchEntries(userId);
+      setCurrentEntry(''); // Clear the current entry after saving
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+  }
+
+  const searchEntries = async (userId) => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/search_entries?userId=${encodeURIComponent(userId)}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+      const suggestions = data.results.suggestions[0];
+
+      setExercises(suggestions.exercises)
+      console.log(suggestions.exercises);
+      setPossibleConditions(suggestions.possible_conditions)
+      console.log(suggestions.possible_conditions);
+      setSuggestedArticles(suggestions.suggested_articles)
+      console.log(suggestions.suggested_articles)
+
+
+    } catch(error) {
+        console.error('Error:', error);
+    };
+  }
 
   // Mock recommendations data
   const recommendations = {
@@ -116,12 +167,8 @@ const MedicalDiary = () => {
 
   const mockAnalyzeSymptoms = () => {
     setAnalysis({
-      possibleConditions: ["Anxiety", "Depression", "Stress"],
-      resources: [
-        { title: "Understanding Anxiety", url: "https://example.com/anxiety" },
-        { title: "Coping with Depression", url: "https://example.com/depression" },
-        { title: "Stress Management", url: "https://example.com/stress" }
-      ]
+      possibleConditions,
+      suggestedArticles
     });
     setShowAnalysis(true);
     setShowRecommendations(false);
@@ -153,22 +200,22 @@ const MedicalDiary = () => {
       <div className="p-4">
         <h3 className="font-medium mb-3">Today's Exercises</h3>
         <div className="space-y-3">
-          {recommendations.dailyExercises.map((exercise) => (
+          {exercises.map((exercise, index) => (
             <Card 
-              key={exercise.id}
+              key={index}
               className={`p-3 cursor-pointer hover:bg-gray-50 transition-colors ${
                 selectedExercise?.id === exercise.id ? 'ring-2 ring-blue-500' : ''
               }`}
-              onClick={() => setSelectedExercise(exercise)}
+              onClick={() => {
+                if (exercise.link) {
+                  window.open(exercise.link, '_blank'); // Opens the link in a new tab
+                }
+              }}
             >
               <div className="flex justify-between items-start mb-2">
                 <div>
                   <h4 className="font-medium">{exercise.title}</h4>
-                  <div className="text-sm text-gray-500">{exercise.duration}</div>
                 </div>
-                <span className="text-xs px-2 py-1 bg-gray-100 rounded-full">
-                  {exercise.category}
-                </span>
               </div>
               <p className="text-sm text-gray-600 line-clamp-2">
                 {exercise.description}
@@ -237,47 +284,46 @@ const MedicalDiary = () => {
       </div>
       <div className="flex-1 flex">
         <div className={`flex-1 flex flex-col ${showAnalysis || showRecommendations ? 'border-r' : ''}`}>
-        <div className="border-b p-2 flex justify-between items-center bg-white">
-  <div className="flex gap-2">
-    {selectedEntry && (  // Keep the delete button conditional
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => {
-          setEntries(entries.filter(e => e.id !== selectedEntryId));
-          setSelectedEntryId(null);
-          setCurrentEntry('');
-        }}
-      >
-        <Trash className="w-4 h-4" />
-      </Button>
-    )}
-  </div>
-  {/* Remove the selectedEntry condition here */}
-  <div className="flex gap-2">
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={mockAnalyzeSymptoms}
-      className="flex items-center gap-2"
-    >
-      <Brain className="w-4 h-4" />
-      Analysis
-    </Button>
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={() => {
-        setShowRecommendations(true);
-        setShowAnalysis(false);
-      }}
-      className="flex items-center gap-2"
-    >
-      <Sparkles className="w-4 h-4" />
-      Recommendations
-    </Button>
-  </div>
-</div>
+          <div className="border-b p-2 flex justify-between items-center bg-white">
+            <div className="flex gap-2">
+              {selectedEntry && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setEntries(entries.filter(e => e.id !== selectedEntryId));
+                    setSelectedEntryId(null);
+                    setCurrentEntry('');
+                  }}
+                >
+                  <Trash className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={mockAnalyzeSymptoms}
+                  className="flex items-center gap-2"
+                >
+                  <Brain className="w-4 h-4" />
+                  Analysis
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setShowRecommendations(true);
+                    setShowAnalysis(false);
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  Recommendations
+                </Button>
+              </div>
+          </div>
           <textarea
             value={selectedEntry ? selectedEntry.content : currentEntry}
             onChange={(e) => {
@@ -295,51 +341,59 @@ const MedicalDiary = () => {
             className="flex-1 p-4 resize-none focus:outline-none bg-white"
             placeholder="Describe your symptoms or feelings..."
           />
-          {!selectedEntry && currentEntry && (
-            <div className="p-2 border-t bg-white">
-              <Button onClick={handleSave}>Save Entry</Button>
-            </div>
-          )}
+
+          <div className="p-2 border-t bg-white">
+            <Button onClick={() => newEntry(userId)}>Save Entry</Button> {/* changed onclick from handleSave */}
+          </div>
+
         </div>
         {showAnalysis && (
-          <div className="w-80 bg-white">
-            <div className="p-4 border-b">
-              <h2 className="text-lg font-semibold">AI Analysis</h2>
-            </div>
-            <div className="p-4">
-              <Card className="mb-4 bg-yellow-50 border-yellow-200">
-                <div className="p-3 text-sm text-yellow-800">
-                  This analysis is for informational purposes only. Please consult a healthcare provider for proper diagnosis and treatment.
-                </div>
-              </Card>
-              <div className="mb-4">
-                <h3 className="font-medium mb-2">Possible Conditions:</h3>
-                <ul className="list-disc pl-5 text-sm space-y-1">
-                  {analysis.possibleConditions.map((condition, index) => (
-                    <li key={index}>{condition}</li>
-                  ))}
-                </ul>
+        <div className="w-80 bg-white">
+          <div className="p-4 border-b">
+            <h2 className="text-lg font-semibold">AI Analysis</h2>
+          </div>
+          <div className="p-4">
+            <Card className="mb-4 bg-yellow-50 border-yellow-200">
+              <div className="p-3 text-sm text-yellow-800">
+                This analysis is for informational purposes only. Please consult a healthcare provider for proper diagnosis and treatment.
               </div>
-              <div>
-                <h3 className="font-medium mb-2">Resources:</h3>
-                <ul className="text-sm space-y-2">
-                  {analysis.resources.map((resource, index) => (
+            </Card>
+            <div className="mb-4">
+              <h3 className="font-medium mb-2">Possible Conditions:</h3>
+              <ul className="list-disc pl-5 text-sm space-y-1">
+                {analysis?.possibleConditions && analysis.possibleConditions.length > 0 ? (
+                  analysis.possibleConditions.map((condition, index) => (
+                    <li key={index}>{condition}</li>
+                  ))
+                ) : (
+                  <li>No possible conditions found.</li>
+                )}
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-medium mb-2">Suggested Articles:</h3>
+              <ul className="text-sm space-y-2">
+                {analysis?.suggestedArticles && analysis.suggestedArticles.length > 0 ? (
+                  analysis.suggestedArticles.map((article, index) => (
                     <li key={index}>
                       <a
-                        href={resource.url}
+                        href={article.source} // Ensure you have the url property on each article
                         className="text-blue-500 hover:underline"
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        {resource.title}
+                        {article.title}
                       </a>
                     </li>
-                  ))}
-                </ul>
-              </div>
+                  ))
+                ) : (
+                  <li>No suggested articles found.</li>
+                )}
+              </ul>
             </div>
           </div>
-        )}
+        </div>
+      )}
         {showRecommendations && <RecommendationsPanel />}
       </div>
     </div>
