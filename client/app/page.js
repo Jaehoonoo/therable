@@ -10,14 +10,6 @@ export default function LandingPage() {
   const { isSignedIn, userId } = useAuth();
   const router = useRouter();
 
-  useEffect(() => {
-    fetch("http://localhost:8080/api/home")
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data.message)
-      });
-  }, [])
-
   // create table for each user
   useEffect(() => {
     createTable(userId);
@@ -36,7 +28,8 @@ export default function LandingPage() {
     .catch((error) => {
         console.error('Error:', error);
     });
-    }
+  }
+
 
   const handleGetStarted = async () => {
     if (!isSignedIn) {
