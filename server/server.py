@@ -8,8 +8,6 @@ Related Articles: Suggest up to 3 articles that discuss mental health treatment,
 
 At-Home Treatments and Exercises: Offer simple, effective, and evidence-based activities, exercises, or techniques the user can practice on their own. These should be actionable and easy to integrate into daily life, such as breathing exercises, journaling prompts, mindfulness practices, or light physical activities to help improve their mental state.
 
-Additional Tips or Suggestions: Provide additional mental health tips or suggestions that align with the user's needs. These could include small lifestyle adjustments, motivational advice, or affirmations. Encourage the user to seek professional support if the entry suggests they may benefit from it.
-
 Example Response Structure:
 return in the following JSON format without any leading or trailing whitespace/text. Have strict JSON formatting without any additional text or explanations. Don't include any spaces, slashes, newlines within the response:
 {
@@ -197,7 +195,7 @@ def saveEntry():
 
 @app.route('/api/get_entry', methods=['GET'])
 def getallEntries():
-    user_id = request.json.get('userId')
+    user_id = request.args.get('userId')
     schema = f"User_schema"
 
     table_name = f"User_schema.{user_id}"
@@ -205,12 +203,12 @@ def getallEntries():
     conn = iris.connect(connection_string, username, password)
     cursor = conn.cursor()
     try:
-        check_query = f"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{table_name}'"
+        check_query = f"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{user_id}'"
         cursor.execute(check_query)
         table_exists = cursor.fetchone()[0]
 
         if table_exists == 1:
-            get_query = f"SELECT * FROM {schema}.{user_id}"
+            get_query = f"SELECT * FROM {table_name}"
             cursor.execute(get_query)
             conn.commit()
             rows = cursor.fetchall()
@@ -221,7 +219,6 @@ def getallEntries():
                     "entry":row[1],
                     "sentiment":row[3]
                 })
-            json.loads(results)
             return jsonify(results)
         else:
             return jsonify({"response": f""})
