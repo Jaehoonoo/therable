@@ -3,6 +3,7 @@ import styles from "./page.module.css";
 import { useEffect } from "react";
 import { SignedIn, SignedOut, UserButton, useAuth } from "@clerk/nextjs";
 import { useRouter } from 'next/navigation';
+import Image from "next/image";
 import './globals.css';
 
 export default function LandingPage() {
@@ -31,10 +32,10 @@ export default function LandingPage() {
       <header className={styles.header}>
         <div className={styles.logoContainer}>
           <Image 
-            src="/newlogo.png" 
+            src="/tester.png" 
             alt="Therable Logo" 
-            width={40} 
-            height={40} 
+            width={1226} 
+            height={706} 
             className={styles.logoIcon}
           />
         </div>
@@ -51,7 +52,7 @@ export default function LandingPage() {
             a curated, customizable health tool for <em>you</em>.
           </h1>
           <div className={styles.buttonContainer}>
-            <button className={styles.getStartedBtn}>Get Started!</button>
+            <button onClick={handleGetStarted} className={styles.getStartedBtn}>Get Started!</button>
           </div>
         </div>
         <div onClick={handleGetStarted} className ={styles.imageContainer}>
