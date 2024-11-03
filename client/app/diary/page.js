@@ -7,6 +7,7 @@ import Button from '../components/ui/Button';
 import Progress from '../components/ui/Progress';
 import { Brain, Search, Plus, Trash, Sparkles } from 'lucide-react';
 import { useAuth } from "@clerk/nextjs";
+import styles from "./page.module.css";
 
 
 const MedicalDiary = () => {
@@ -318,7 +319,7 @@ const MedicalDiary = () => {
             placeholder="Describe your symptoms or feelings..."
           />
 
-          <div className="p-2 border-t bg-white">
+          <div className={styles.button}>
             <Button onClick={() => newEntry(userId)}>Save Entry</Button> {/* changed onclick from handleSave */}
           </div>
 
