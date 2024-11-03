@@ -1,7 +1,7 @@
 "use client";
 import styles from "./page.module.css";
 import { useEffect } from "react";
-import { SignedIn, SignedOut, UserButton, useAuth } from "@clerk/nextjs";
+import { SignInButton, SignUpButton, UserButton, SignedIn, SignedOut, useAuth } from "@clerk/nextjs";
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import './globals.css';
@@ -48,22 +48,48 @@ export default function LandingPage() {
   }
 
   return (
-    <div className={styles.container}>
-      <header className={styles.header}>
-        <div className={styles.logoContainer}>
-          <Image 
-            src="/tester.png" 
-            alt="Therable Logo" 
-            width={1226} 
-            height={706} 
-            className={styles.logoIcon}
-          />
-        </div>
-        <div className={styles.buttonGroup}> {/* New container for buttons */}
-          <button className={styles.loginBtn}>Login</button>
-          <button className={styles.loginBtn}>Sign Up</button> {/* New Sign Up button */}
-        </div>
-      </header>
+      <div className={styles.container}>
+        <header className={styles.header}>
+          <div className={styles.logoContainer}>
+            <Image 
+              src="/tester.png" 
+              alt="Therable Logo" 
+              width={1226} 
+              height={706} 
+              className={styles.logoIcon}
+            />
+          </div>
+          
+          <SignedOut>
+            <div className={styles.buttonGroup}>
+              <button 
+                className={styles.loginBtn} 
+                onClick={() => router.push('/sign-in')}
+              >
+                Login
+              </button>
+              <button 
+                className={styles.loginBtn}
+                onClick={() => router.push('/sign-up')}
+              >
+                Sign Up
+              </button>
+            </div>
+          </SignedOut>
+          
+          <SignedIn>
+            <div className={styles.userSection}>
+              <UserButton 
+                afterSignOutUrl="/"
+                appearance={{
+                  elements: {
+                    avatarBox: styles.avatarBox
+                  }
+                }}
+              />
+            </div>
+          </SignedIn>
+        </header>
 
       <main className={styles.mainContent}>
         <div className={styles.textContent}>
