@@ -1,9 +1,31 @@
-// page.js
-import Image from 'next/image';
-import styles from '../styles/LandingPage.module.css';
+"use client";
+import styles from "./page.module.css";
+import { useEffect } from "react";
+import { SignedIn, SignedOut, UserButton, useAuth } from "@clerk/nextjs";
+import { useRouter } from 'next/navigation';
 import './globals.css';
 
 export default function LandingPage() {
+  const { isSignedIn, userId } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    fetch("http://localhost:8080/api/home")
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data.message)
+      });
+  }, [])
+
+  const handleGetStarted = async () => {
+    if (!isSignedIn) {
+      router.push("/sign-in");
+      return;
+    } else {
+      router.push("/diary");
+    }
+  }
+
   return (
     <div className={styles.container}>
       <header className={styles.header}>
@@ -32,7 +54,7 @@ export default function LandingPage() {
             <button className={styles.getStartedBtn}>Get Started!</button>
           </div>
         </div>
-        <div className={styles.imageContainer}>
+        <div onClick={handleGetStarted} className ={styles.imageContainer}>
           <Image 
             src="/mainerpick.png" 
             alt="Therapy Session Illustration" 
@@ -42,6 +64,7 @@ export default function LandingPage() {
           />
         </div>
       </main>
+
     </div>
   );
 }

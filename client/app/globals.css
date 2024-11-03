@@ -17,3 +17,7 @@ body {
   margin: 0px 0px;
   padding: 0px;
 }
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
