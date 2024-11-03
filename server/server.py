@@ -18,14 +18,13 @@ CORS(app)
 
 @app.route('/therable/entry', methods=['POST'])
 def saveEntry():
-    userId = request.json.get('userID')
     date = request.json.get('date')
     entry = request.json.get('entry')
-    query = f"INSERT INTO therableentries (userID, datecreated, entry) VALUES (?,?,?)"
+    query = f"INSERT INTO therableentries (datecreated, entry) VALUES (?,?)"
     conn = iris.connect(connection_string, username, password)
     cursor = conn.cursor()
     try:
-        cursor.execute(query,[userId,date,entry])
+        cursor.execute(query,[date,entry])
     except Exception as inst:
         return jsonify({"response": str(inst)}) 
     cursor.close()
@@ -35,7 +34,6 @@ def saveEntry():
 
 @app.route('/therable/entry', methods=['GET'])
 def getallEntries():
-    userId = request.json.get('userID')
     conn = iris.connect(connection_string, username, password)
     cursor = conn.cursor()
     try:
