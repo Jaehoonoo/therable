@@ -237,48 +237,47 @@ const MedicalDiary = () => {
       </div>
       <div className="flex-1 flex">
         <div className={`flex-1 flex flex-col ${showAnalysis || showRecommendations ? 'border-r' : ''}`}>
-          <div className="border-b p-2 flex justify-between items-center bg-white">
-            <div className="flex gap-2">
-              {selectedEntry && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setEntries(entries.filter(e => e.id !== selectedEntryId));
-                    setSelectedEntryId(null);
-                    setCurrentEntry('');
-                  }}
-                >
-                  <Trash className="w-4 h-4" />
-                </Button>
-              )}
-            </div>
-            {selectedEntry && (
-              <div className="flex gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={mockAnalyzeSymptoms}
-                  className="flex items-center gap-2"
-                >
-                  <Brain className="w-4 h-4" />
-                  Analyze
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setShowRecommendations(true);
-                    setShowAnalysis(false);
-                  }}
-                  className="flex items-center gap-2"
-                >
-                  <Sparkles className="w-4 h-4" />
-                  Recommendations
-                </Button>
-              </div>
-            )}
-          </div>
+        <div className="border-b p-2 flex justify-between items-center bg-white">
+  <div className="flex gap-2">
+    {selectedEntry && (  // Keep the delete button conditional
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => {
+          setEntries(entries.filter(e => e.id !== selectedEntryId));
+          setSelectedEntryId(null);
+          setCurrentEntry('');
+        }}
+      >
+        <Trash className="w-4 h-4" />
+      </Button>
+    )}
+  </div>
+  {/* Remove the selectedEntry condition here */}
+  <div className="flex gap-2">
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={mockAnalyzeSymptoms}
+      className="flex items-center gap-2"
+    >
+      <Brain className="w-4 h-4" />
+      Analysis
+    </Button>
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={() => {
+        setShowRecommendations(true);
+        setShowAnalysis(false);
+      }}
+      className="flex items-center gap-2"
+    >
+      <Sparkles className="w-4 h-4" />
+      Recommendations
+    </Button>
+  </div>
+</div>
           <textarea
             value={selectedEntry ? selectedEntry.content : currentEntry}
             onChange={(e) => {
