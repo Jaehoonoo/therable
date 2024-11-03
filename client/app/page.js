@@ -3,7 +3,7 @@ import styles from "./page.module.css";
 import { useEffect } from "react";
 import { SignedIn, SignedOut, UserButton, useAuth } from "@clerk/nextjs";
 import { useRouter } from 'next/navigation';
-import Image from "next/image";
+import Image from 'next/image';
 import './globals.css';
 
 export default function LandingPage() {
@@ -17,6 +17,26 @@ export default function LandingPage() {
         console.log(data.message)
       });
   }, [])
+
+  // create table for each user
+  useEffect(() => {
+    createTable(userId);
+  }, [userId])
+
+
+  const createTable = (userId) => {
+    fetch('http://localhost:8080/api/create_table', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userId: userId }),
+    })
+    .then(response => response.text())
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+    }
 
   const handleGetStarted = async () => {
     if (!isSignedIn) {
@@ -55,7 +75,7 @@ export default function LandingPage() {
             <button onClick={handleGetStarted} className={styles.getStartedBtn}>Get Started!</button>
           </div>
         </div>
-        <div onClick={handleGetStarted} className ={styles.imageContainer}>
+        <div className ={styles.imageContainer}>
           <Image 
             src="/mainerpick.png" 
             alt="Therapy Session Illustration" 

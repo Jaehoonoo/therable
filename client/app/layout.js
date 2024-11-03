@@ -20,7 +20,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider dynamic>
       <html lang="en">
         <body className={`${geistSans.variable} ${geistMono.variable}`}>
           {children}
