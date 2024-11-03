@@ -147,3 +147,18 @@
     gap: 30px;
   }
   
+  .userSection {
+    display: flex;
+    align-items: center;
+    padding: 0 1rem;
+  }
+  
+  .avatarBox {
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+    scale: 1.5;
+  }
+  
+  .avatarBox:hover {
+    opacity: 0.8;
+  }
