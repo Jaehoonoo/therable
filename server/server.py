@@ -29,7 +29,7 @@ def createTable():
 
     try:
         # Check if the table already exists
-        check_query = f"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '{table_name}'"
+        check_query = f"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_Name = '{table_name}'"
         cursor.execute(check_query)
         table_exists = cursor.fetchone()[0]
 
@@ -66,17 +66,35 @@ def saveEntry():
 
 @app.route('/api/get_entry', methods=['GET'])
 def getallEntries():
+    user_id = request.json.get('userId')
+    schema = f"User_schema"
+
     conn = iris.connect(connection_string, username, password)
     cursor = conn.cursor()
     try:
-        cursor.execute(f"Select * From therableentries")
-        data = cursor.fetchall()
-    except Exception as inst:
-        return jsonify({"response": str(inst)})
-    cursor.close()
-    conn.commit()
-    conn.close()
-    return jsonify({"response": data})
+        check_query = f"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{user_id}'"
+        cursor.execute(check_query)
+        table_exists = cursor.fetchone()[0]
+
+        if table_exists == 1:
+            get_query = f"SELECT * FROM {schema}.{user_id}"
+            cursor.execute(get_query)
+            conn.commit()
+            rows = cursor.fetchall()
+            results = []
+            for row in rows:
+                results.append({
+                    "date_created":row[0],
+                    "entry":row[1]
+                })
+            return jsonify(results)
+        else:
+            return jsonify({"response": f""})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+    finally:
+        cursor.close()
+        conn.close()
 
 @app.route('/api/edit_entry', methods=['PUT'])
 def editEntry():
