@@ -36,6 +36,7 @@ return in the following JSON format without any leading or trailing whitespace/t
     ]
 }
 
+Ensure that there are no hallucinations.
 Ensure that th youtube links are still accessible and not deprecated.
 Ensure that there are three items for exercises and suggested articles.
 Ensure that exercises only have youtube videos and not any articles.
@@ -199,10 +200,12 @@ def getallEntries():
     user_id = request.json.get('userId')
     schema = f"User_schema"
 
+    table_name = f"User_schema.{user_id}"
+
     conn = iris.connect(connection_string, username, password)
     cursor = conn.cursor()
     try:
-        check_query = f"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{user_id}'"
+        check_query = f"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{table_name}'"
         cursor.execute(check_query)
         table_exists = cursor.fetchone()[0]
 
@@ -216,8 +219,9 @@ def getallEntries():
                 results.append({
                     "date_created":row[0],
                     "entry":row[1],
-                    "vectors":row[2]
+                    "sentiment":row[3]
                 })
+            json.loads(results)
             return jsonify(results)
         else:
             return jsonify({"response": f""})
