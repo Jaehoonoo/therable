@@ -1,7 +1,7 @@
 // app/diary/page.js
 "use client"; // Needed for Client Components in Next.js App Router
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Progress from '../components/ui/Progress';
@@ -88,8 +88,8 @@ const MedicalDiary = () => {
       }
     ],
     weeklyProgress: {
-      exercisesCompleted: 12,
-      totalExercises: 21,
+      exercisesCompleted: 5,
+      totalExercises: 7,
       streakDays: 5
     }
   };
