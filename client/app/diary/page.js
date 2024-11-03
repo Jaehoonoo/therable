@@ -23,9 +23,21 @@ const MedicalDiary = () => {
   const [possibleConditions, setPossibleConditions] = useState([]);
   const [suggestedArticles, setSuggestedArticles] = useState([]);
 
-  const { userId } = useAuth();
+  const [currentEntryContent, setCurrentEntryContent] = useState('');
+
+  const { userId, isSignedIn } = useAuth();
+
+  useEffect(() => {
+    if (isSignedIn) {
+      getEntries(userId)
+    }
+  }, [isSignedIn])
 
   const newEntry = async (userId) => {
+    if (currentEntry.trim() === '') {
+      alert('Please enter a valid entry');
+      return;
+    } 
     await fetch('http://localhost:8080/api/new_entry', {
       method: 'POST',
       headers: {
@@ -37,6 +49,7 @@ const MedicalDiary = () => {
     .then(() => {
       // Call searchEntries to refresh the entries after adding a new one
       searchEntries(userId);
+      getEntries(userId);
       setCurrentEntry(''); // Clear the current entry after saving
     })
     .catch((error) => {
@@ -69,93 +82,53 @@ const MedicalDiary = () => {
     };
   }
 
+  const getEntries = async (userId) => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/get_entry?userId=${encodeURIComponent(userId)}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+      console.log(data);
+
+      // for (let i=0; i<data.length; i++) {
+      //   const entry = data[i];
+      //   const newEntry = {
+      //     id: i,
+      //     date: entry.date,
+      //     content: entry.entry,
+      //     preview: entry.entry.substring(0, 50) + (entry.entry.length > 50 ? '...' : '')
+      //   };
+      //   setEntries((prevEntries) => [newEntry, ...prevEntries]);
+      // }
+
+      const entries = data.slice().reverse().map((entry, index) => ({
+        id: `entry-${index}`,
+        date: entry.date,
+        content: entry.entry,
+        preview: entry.entry.substring(0, 50) + (entry.entry.length > 50 ? '...' : '')
+      }))
+
+      // Sort entries by date in descending order
+      entries.sort((a, b) => new Date(b.date) - new Date(a.date));
+      setEntries(entries);
+
+
+
+    } catch(error) {
+        console.error('Error:', error);
+    };
+  }
+
   // Mock recommendations data
   const recommendations = {
-    dailyExercises: [
-      {
-        id: 1,
-        title: "5-Minute Mindful Breathing",
-        category: "Meditation",
-        duration: "5 mins",
-        completed: false,
-        description: "Find a quiet place and focus on your breath. Notice the sensation of breathing in and out.",
-        steps: [
-          "Sit comfortably with your back straight",
-          "Close your eyes or maintain a soft gaze",
-          "Focus on your natural breath",
-          "When your mind wanders, gently return to the breath",
-          "Continue for 5 minutes"
-        ]
-      },
-      {
-        id: 2,
-        title: "Gratitude Journaling",
-        category: "Writing",
-        duration: "10 mins",
-        completed: false,
-        description: "Write down three things you're grateful for today.",
-        steps: [
-          "Find a quiet moment in your day",
-          "Reflect on positive experiences",
-          "Write specific details about each item",
-          "Include why they made you feel grateful",
-          "Review previous entries occasionally"
-        ]
-      },
-      {
-        id: 3,
-        title: "Progressive Muscle Relaxation",
-        category: "Relaxation",
-        duration: "15 mins",
-        completed: false,
-        description: "Systematically tense and relax different muscle groups.",
-        steps: [
-          "Lie down in a comfortable position",
-          "Start with your toes and feet",
-          "Move upward through each muscle group",
-          "Hold tension for 5 seconds",
-          "Release and feel the relaxation"
-        ]
-      }
-    ],
-    resources: [
-      {
-        title: "Understanding Anxiety",
-        type: "Article",
-        source: "Mental Health Foundation",
-        rating: 4.8
-      },
-      {
-        title: "Sleep Hygiene Tips",
-        type: "Guide",
-        source: "Sleep Foundation",
-        rating: 4.9
-      },
-      {
-        title: "Stress Management Techniques",
-        type: "Video Course",
-        source: "Wellness Center",
-        rating: 4.7
-      }
-    ],
     weeklyProgress: {
       exercisesCompleted: 5,
       totalExercises: 7,
       streakDays: 5
-    }
-  };
-
-  const handleSave = () => {
-    if (currentEntry.trim()) {
-      const newEntry = {
-        id: Date.now(),
-        date: new Date().toLocaleString(),
-        content: currentEntry,
-        preview: currentEntry.substring(0, 50) + (currentEntry.length > 50 ? '...' : '')
-      };
-      setEntries([newEntry, ...entries]);
-      setSelectedEntryId(newEntry.id);
-      setCurrentEntry('');
     }
   };
 
@@ -202,7 +175,7 @@ const MedicalDiary = () => {
         <div className="space-y-3">
           {exercises.map((exercise, index) => (
             <Card 
-              key={index}
+              key={`exercise-${index}`}
               className={`p-3 cursor-pointer hover:bg-gray-50 transition-colors ${
                 selectedExercise?.id === exercise.id ? 'ring-2 ring-blue-500' : ''
               }`}
@@ -254,18 +227,21 @@ const MedicalDiary = () => {
           </div>
         </div>
         <div className="flex-1 overflow-y-auto">
-          {filteredEntries.map((entry) => (
+        {filteredEntries.map((entry, index) => (
             <div
-              key={entry.id}
-              onClick={() => setSelectedEntryId(entry.id)}
-              className={`p-3 cursor-pointer border-b ${
-                selectedEntryId === entry.id ? 'bg-white' : 'hover:bg-gray-200'
-              }`}
+                key={entry.id} 
+                onClick={() => {
+                    setSelectedEntryId(entry.id); // Set the selected entry
+                    setCurrentEntryContent(entry.content); // Set the content of the selected entry
+                }}
+                className={`p-3 cursor-pointer border-b ${
+                    selectedEntryId === index ? 'bg-white' : 'hover:bg-gray-200'
+                }`}
             >
-              <div className="text-xs text-gray-500">{entry.date}</div>
-              <div className="text-sm font-medium truncate">{entry.preview}</div>
+                <div className="text-xs text-gray-500">{entry.date}</div>
+                <div className="text-sm font-medium truncate">{entry.preview}</div>
             </div>
-          ))}
+        ))}
         </div>
         <div className="p-2 border-t">
           <Button
@@ -363,7 +339,7 @@ const MedicalDiary = () => {
               <ul className="list-disc pl-5 text-sm space-y-1">
                 {analysis?.possibleConditions && analysis.possibleConditions.length > 0 ? (
                   analysis.possibleConditions.map((condition, index) => (
-                    <li key={index}>{condition}</li>
+                    <li key={`condition-${index}`}>{condition}</li>
                   ))
                 ) : (
                   <li>No possible conditions found.</li>
@@ -375,7 +351,7 @@ const MedicalDiary = () => {
               <ul className="text-sm space-y-2">
                 {analysis?.suggestedArticles && analysis.suggestedArticles.length > 0 ? (
                   analysis.suggestedArticles.map((article, index) => (
-                    <li key={index}>
+                    <li key={`article-${index}`}>
                       <a
                         href={article.source} // Ensure you have the url property on each article
                         className="text-blue-500 hover:underline"
