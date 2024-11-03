@@ -17,6 +17,29 @@ export default function LandingPage() {
       });
   }, [])
 
+  // create table for each user
+  useEffect(() => {
+    createTable(userId);
+  }, [userId])
+
+
+  const createTable = (userId) => {
+    fetch('http://localhost:8080/api/create_table', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userId: userId }),
+    })
+    .then(response => response.text())
+    .then(data => {
+        document.getElementById('output').textContent = data;
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+    }
+
   const handleGetStarted = async () => {
     if (!isSignedIn) {
       router.push("/sign-in");
