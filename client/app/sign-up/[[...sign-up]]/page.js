@@ -8,7 +8,7 @@ export default function SignInPage() {
         <SignIn signUpUrl="sign-up" />
       </div>
       <div className={styles.imageWrapper}>
-        <img src="oldman.png" alt="Description" className={styles.image} />
+        <img src="oldman.png" alt="Image of an older individual thinking of what to write in his journal" className={styles.image} />
       </div>
     </div>
   );
