@@ -88,8 +88,8 @@ const MedicalDiary = () => {
       }
     ],
     weeklyProgress: {
-      exercisesCompleted: 12,
-      totalExercises: 21,
+      exercisesCompleted: 5,
+      totalExercises: 7,
       streakDays: 5
     }
   };
