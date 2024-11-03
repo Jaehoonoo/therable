@@ -52,10 +52,10 @@ export default function LandingPage() {
       <header className={styles.header}>
         <div className={styles.logoContainer}>
           <Image 
-            src="/newlogo.png" 
+            src="/tester.png" 
             alt="Therable Logo" 
-            width={40} 
-            height={40} 
+            width={1226} 
+            height={706} 
             className={styles.logoIcon}
           />
         </div>
