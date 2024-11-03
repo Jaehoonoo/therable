@@ -4,4 +4,24 @@
   justify-content: center;
   align-items: center;
   background-color: #b9e6b8;
+  gap: 80px; /* Space between sign-in and image */
+}
+
+.signInBox {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 400px; /* Adjust width as needed */
+  width: 100%;
+}
+
+.imageWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.image {
+  max-width: 500px; /* Adjust width as needed */
+  height: 500px;
 }
