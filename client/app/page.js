@@ -33,9 +33,6 @@ export default function LandingPage() {
       body: JSON.stringify({ userId: userId }),
     })
     .then(response => response.text())
-    .then(data => {
-        document.getElementById('output').textContent = data;
-    })
     .catch((error) => {
         console.error('Error:', error);
     });
@@ -75,10 +72,10 @@ export default function LandingPage() {
             a curated, customizable health tool for <em>you</em>.
           </h1>
           <div className={styles.buttonContainer}>
-            <button className={styles.getStartedBtn}>Get Started!</button>
+            <button onClick={handleGetStarted} className={styles.getStartedBtn}>Get Started!</button>
           </div>
         </div>
-        <div onClick={handleGetStarted} className ={styles.imageContainer}>
+        <div className ={styles.imageContainer}>
           <Image 
             src="/mainerpick.png" 
             alt="Therapy Session Illustration" 

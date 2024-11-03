@@ -35,7 +35,7 @@ def createTable():
 
         if table_exists == 0:
             # If the table doesn't exist, create it
-            create_query = f"CREATE TABLE {schema}.{table_name} (date_created DATETIME, entry TEXT)"
+            create_query = f"CREATE TABLE {schema}.{table_name} (date_created DATETIME, entry TEXT, entry_vector VECTOR(DOUBLE, 384))"
             cursor.execute(create_query)
             conn.commit()
             return jsonify({"response": f"Table '{table_name}' created."})
